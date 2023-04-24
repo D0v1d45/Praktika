@@ -1,0 +1,70 @@
+Testavimo planas
+Test 01
+Pavadinimas
+Ištestuoti mygtuko ,,start’’ veikimą.
+Aprašymas
+Vartotojo sąsajoje yra mygtukas start. Paspaudus jį turėtų užsisakyti serveris kurio duomenys perteikiami į teksto langą.
+Tikėtini rezultatai
+Serveris yra užsakomas ir teksto lange turėtų pasirodyti informaciją apie užsakomą serverį t.y serverio pavadinimas, regionas, ip adresas, serverio būsena.
+
+Test 02
+Pavadinimas
+Ištestuoti mygtuko ,,clear the screen’’ veikimą.
+Aprašymas
+Vartotojo sąsajoe esantis mygtukas clear the screen turėtų išvalyti teksto langą kuriame prieš tai buvo pateikiama informacija apie serverį.
+Tikėtini rezultatai
+Vartotojo sąsajoje esantis langas yra išvalomas nuo teksto.
+
+Test 03
+Pavadinimas
+Ištestuoti mygtuko ,,Exit” funkcinalumą
+Aprašymas
+Vartotojo sąsajoje esantis mygtukas ,,Exit” yra atsakingas už vartotojo sąsajos lango uždarymą ir užsakomo serverio sustabdymą. Paspaudus jį serverio užsakymas yra nutraukiamas ir vartotojo sąsajos langas uždaromas.
+Tikėtini rezultatai
+Serverio užsakymas yra nutraukiamas ir vartotojo langas uždaromas.
+
+Test 04
+Pavadinimas
+Serverio atsitiktinis parinkimo algoritmas
+Aprašymas
+Naudojant atsitiktinio serverio pasirinkimo algoritmą, ištestuoti kas atsitinka jeigu nėra galimybės pasirinkti nei vieno serverio.
+Tikėtini rezultatai
+Neradus jokio serverio užsakyti, turėtų būtų rodomas pranešimas, kad serverio užsakymas nėra galimas, kadangi nepasirinkus serverio sekantys žingsniai yra negalimi.
+
+Test 05
+Pavadinimas
+Serverio regionio parinktis
+Aprašymas
+Atsitiktinio regiono parinkties algoritmu siekiama, kad būtų parinktas regionas, tačiau jeigu per klaidą nėra jokių pateiktų regionų, turėtų būti rodoma klaida.
+Tikėtini rezultatai
+Neradus regiono, rodoma klaidą, kad serverio užsakymas yra negalimas ir nutraukiami užsakymo veiksmai.
+
+Test 06
+Pavadinimas
+Teksto lauko draudimas redaguoti (įrašyti duomenis)
+Aprašymas
+Vartotojo sąsajoje esantis laukas esančiame lauke kaip yra užsakomas serveris ir dumenys pateikiamii, vartotojui galima kopijuoti tuos duomenis tačiau įrašyti kokių nors simbolių negalima.
+Tikėtini rezultatai
+Draudžiama įterpti vartotojo norimus simoblius į teksto lauką.
+
+
+Test 07
+Pavadinimas
+Ištestuoti retrieve server actions API
+Aprašymas
+Naudojantis retrieve server actions API patikrinti ar duomenys yra gaunami iš serverio. Jeigu duomenų neina gauti roodmas pranešimas.
+Tikėtini rezultatai
+Veikiantis API turėtų grąžinti duomenis apie serverio veiksmus, jeigų neveikia duomenys nėra gaunami ir rodoma klaida.
+
+Test 08
+Pavadinimas
+Serverio išjungimo API
+Aprašymas
+Pasinaudojant post perform an action API panaudoty funkciją power_off kaip serveris yra išjungiamas. Sėkmingai išjungus serverį vartotojo sąsajoje yra rodomas pranešimas, kad serveris išsijungė arba ne.
+Tikėtini rezultatai
+Rodomas pranešimas, serveris išjungtas arba nepavyko išjungti teksto lange. Serverio darbas baigtas.
+
+
+
+
+
