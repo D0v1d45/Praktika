@@ -1,3 +1,17 @@
+Įvadas
+Šiame tekstiniame faile yra aprašomi testavimo atvėjai siekiant užtikrinti kuriamo projekto veikimo sklandumą, funkcionalumą ir kokybę pasinaudojant black-box testavimu.
+
+Testavimo blokai
+*Ištestuoti vartotojo sąsają užtikrinant skaldnų ir funkcionalų jos veikimą.(front-end)
+*Ištestuoti rezultatus gaunamus naudojant API.(back-end)
+
+Testavimo tikslai
+*Užtikrinti funkcionalų ir skalndų vartotojo sąsajos elementų darbą
+*Ištestuoti ir užtikrinti,kad naudojami API atlieka savo darbą, t.y. paima reikiamus duomenis ir pateikia vartotojui.
+
+Testavimo įrankiai
+Testavimui ir automatizavimui bus naudojamas įrankis Selenium kurio pagalba bus galima paleisti testavimą ir automatizavimą ištestuojant vartotojo sąsaja bei API.
+
 Testavimo planas
 Test 01
 Pavadinimas
