@@ -69,11 +69,6 @@ def SSHKEY(server_ID):
     server = master.get_server(server_ID, fields="power,state,termination_date")
     OrderServer()
     TextContainer.insert(tk.INSERT,server)
-
-
-
-
-    
 #-----------------------------------------------------------------------------------------------------------
 # screen dimenisons
 screen_width = frame.winfo_screenwidth()
