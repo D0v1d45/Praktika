@@ -147,6 +147,6 @@ RefreshTextBox.place(x=750,y=120)
 
 label = Label(frame, text='Server info')
 label.place(x=350,y=5)
-""""
+"""""
 ListPlans()
 #frame.mainloop()
