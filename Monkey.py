@@ -1,80 +1,133 @@
 import tkinter as tk
 from tkinter import *
 import requests
-import cherry
 import json
-from bs4 import BeautifulSoup
-from selenium import webdriver
 import credentials
+from random import choice
+import time
 
+
+t = time.localtime()
 ENDPOINT = "https://www.cherryservers.com"
 
-"""""
-frame = tk.Tk()
-frame.title('Bezdione')
 
-window_width = 1000
-window_height = 800
+Plan_list = list()
+Region_list = list()
+Image_List = list()
 
-TextContainer = tk.Text(frame, height = 45, width = 90)
-
-TextContainer.pack(side=tk.LEFT)
-
-
-#-------------------------------FUNCTIONS----------------------------------------------------------------
-def ClrScreen():
-    TextContainer.delete("1.0","end")
-
-def GetServerInfo(server_ID):
-    if server_ID == "":
-        TextContainer.insert(tk.END,"Klaidingas arba nenurodytas serverio_ID")
-    server = master.get_server(server_ID)
-    TextContainer.insert(tk.END,server)
-
-def GetPlans():
-    plans = master.get_plans(team_id="91958")
-    for plan in plans:
+plans = credentials.master.get_plans(team_id="91958")
+for plan in plans:
      p = json.dumps(plan)
-    parse_p = json.loads(p)
-    TextContainer.insert("1.0","Plan id: %s -> Plan name: %s -> Av: %s" % (parse_p['id'], parse_p['name'], parse_p['available_regions']))
-"""""
-def GetTeams():
-    teams = credentials.master.get_teams()
-    for team in teams:
-        t = json.dumps(team)
-    parse_t = json.loads(t)
-    print("Team ID: %s -> Team Name: %s" % (parse_t['id'], parse_t['name']))
+     parse_p = json.loads(p)
+     Plan_list.append(parse_p["id"])
 
-def GetSpecificServerInfo(server_ID):
-    server = credentials.master.get_server(server_ID, fields="power,state,termination_date")
-    print(server)
+
+Regions = credentials.master.get_plans(team_id="91958")
+for plan in Regions:
+    for region in plan['available_regions']:
+        region=region['name']
+        Region_list.append(region)
+
+setRegion = choice(Region_list)
+setPlan = choice(Plan_list)
+
+images = credentials.master.get_images(plan_id=setPlan)
+for image in images:
+    im = json.dumps(image)
+    parse_image = json.loads(im)
+    Image_List.append(parse_image["name"])
+                                 
+setImage = choice(Image_List)
+
+data ={
+        "Plan Id": setPlan,
+        "Region" : setRegion,
+        "Image" : setImage
+    }
+#print(json.dumps(data))
+
+def DeployRandomServer():
+    
+    server = credentials.master.create_server(project_id="149121",
+                                               hostname = "",
+                                               image=setImage,
+                                               region=setRegion,
+                                               plan_id=(setPlan))
+    server2 = credentials.master.get_server(server['id'],fields="plan,power,state,created_at")
+    current_time = time.strftime("%H:%M:%S", t)
+    with open("logs.json", "a") as data:
+        server2["Test_Started_Time"] = current_time
+        server2['Test_Hostname'] = "hostname"
+        server2["Test plan id"] = setPlan
+        server2["Test Region"] = setRegion
+        server2["Test image"] = setImage
+        json.dump(server2, data,indent=2)
+        """""
+    while True:
+        time.sleep(30)
+        ServerID = credentials.master.get_server(server['id'],fields="id,state")
+        
+        if(ServerID['state'] == 'active'):
+            print("Serveris uzsakytas sekmingai")
+            break
+        else:
+            print("serverio uzsakyti nepavyko")
+  """""
+def test_DeployServer(hostname,img,reg,id):
+    server = credentials.master.create_server(project_id="149121", 
+                              hostname=hostname,
+                              image=img, 
+                              region=reg,
+                              plan_id=id)
+    server2 = credentials.master.get_server(server['id'],fields="id,plan,power,state,created_at")
+    current_time = time.strftime("%H:%M:%S", t)
+    with open("logs.json", "a") as data:
+            server2["Test_Started_Time"] = current_time
+            server2['Test_Hostname'] = hostname
+            server2["Test_Plan id"] = id
+            server2["Test_Region"] = reg
+            server2["Test_Image"] = img
+            json.dump(server2, data,indent=2)
+    
+    while True:
+        time.sleep(30)
+        ServerID = credentials.master.get_server(server['id'],fields="id,state")
+        
+        if(ServerID['state'] == 'active'):
+            print("Serveris uzsakytas sekmingai")
+            break
+        else:
+            print("serverio uzsakyti nepavyko")
+    
 def DeleteServer(server_id):
     server = credentials.master.terminate_server(server_id)
-    print("Delete server: %s" % server)
+    print("Serveris istrintas: %s" % server["id"])
 
-def OrderServer():
-    ips = []
-    ssh_keys=['95']
+print("/////////////////////////////Bezdione Bot //////////////////////////////////////////")
+print("pasirinkite viena varijanta is 2 pateiktu ir spauskite skaiciu")
+print('1-Atsitiktinio serverio uzsakymas')
+print('2-Uzsakyti serveri su ivestais parametrais ')
+while True:
+    User_input = int(input("Iveskite skaiciu (1 arba 2): "))
 
-    server = credentials.master.create_server(project_id="79813", 
-                              name="Cloud_Vps_1",
-                              hostname="bla.com",
-                              image="Ubuntu 20.04 64bit", 
-                              region="EU-Nord-1",
-                              ip_addresses=ips,
-                              ssh_keys=ssh_keys,
-                              plan_id="161")
-    #TextContainer.insert(tk.END,"Server: %s" % server)
-"""def SSHKEY(server_ID):
-    master = cherry.Master(auth_token="")
-    server = master.get_server(server_ID, fields="power,state,termination_date")
-    OrderServer()
-    TextContainer.insert(tk.INSERT,server)
-"""
-def ListPlans():
-    url = "https://api.cherryservers.com/v1/plans"
-    response = requests.get(url,headers=credentials.headers)
-    print(response.content)
+    if User_input == 1:
+        DeployRandomServer()
+        break
+    elif User_input == 2:
+        hostname = input("iveskite serverio pavadinima :")
+        img = input("Iveskite operacine sistema :")
+        reg = input("Iveskite regiona :")
+        plan_id = input('Iveskite plano id :')
+        
+        test_DeployServer(hostname,img,reg,plan_id)
+        break
+    else:
+        print("Blogai ivestas skaicius")
+
+
+
+
+"""""
 #-----------------------TESTS------------------------------------------------------------------------------
 def test_acess_to_regions():
     url = "https://api.cherryservers.com/v1/regions"
@@ -115,38 +168,5 @@ def test_GetSpecificServerInfo():
 #def test_DeleteServer(server_id):
  #   server = master.terminate_server(server_id)
   #  print("Delete server: %s" % server)
-    
+    """""
 #-----------------------------------------------------------------------------------------------------------
-"""""
-# screen dimenisons
-screen_width = frame.winfo_screenwidth()
-screen_height = frame.winfo_screenheight()
-
-# center point
-center_x = int(screen_width/2 - window_width / 2)
-center_y = int(screen_height/2 - window_height / 2)
-
-# set the position of the window to the center of the screen
-frame.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-ButtonStart = tk.Button(frame, text="Start", fg="green",width=30, command=quit)
-ButtonStart.place(x=750,y=30)
-
-
-frame.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-ButtonExit = tk.Button(frame, text="Exit", fg="red",width=30, command=quit)
-ButtonExit.place(x=750,y=90)
-
-frame.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-ButtonClear = tk.Button(frame, text="Clear the screen",font=('Helvetica 18 bold', 9), fg="red",width=30, command=ClrScreen)
-ButtonClear.place(x=750,y=60)
-
-frame.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-RefreshTextBox = tk.Button(frame, text="Refresh",font=('Helvetica 18 bold', 9), fg="black",width=30, command=GetServerInfo("485855"))
-RefreshTextBox = tk.Button(frame, text="Refresh",font=('Helvetica 18 bold', 9), fg="black",width=30, command=GetTeams)
-RefreshTextBox.place(x=750,y=120)
-
-label = Label(frame, text='Server info')
-label.place(x=350,y=5)
-"""""
-ListPlans()
-#frame.mainloop()
