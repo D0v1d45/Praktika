@@ -1,16 +1,13 @@
-import tkinter as tk
 from tkinter import *
 import requests
 import json
 import credentials
 from random import choice
 import time
+from datetime import datetime
+import sys
 
-
-t = time.localtime()
 ENDPOINT = "https://www.cherryservers.com"
-
-
 Plan_list = list()
 Region_list = list()
 Image_List = list()
@@ -44,129 +41,161 @@ data ={
         "Region" : setRegion,
         "Image" : setImage
     }
-#print(json.dumps(data))
+def TerminateServer(server_id):
+    server = credentials.master.terminate_server(server_id)
+
 
 def DeployRandomServer():
-    
-    server = credentials.master.create_server(project_id="149121",
-                                               hostname = "",
-                                               image=setImage,
-                                               region=setRegion,
-                                               plan_id=(setPlan))
-    server2 = credentials.master.get_server(server['id'],fields="plan,power,state,created_at")
-    current_time = time.strftime("%H:%M:%S", t)
-    with open("logs.json", "a") as data:
-        server2["Test_Started_Time"] = current_time
-        server2['Test_Hostname'] = "hostname"
-        server2["Test plan id"] = setPlan
-        server2["Test Region"] = setRegion
-        server2["Test image"] = setImage
-        json.dump(server2, data,indent=2)
-        """""
-    while True:
-        time.sleep(30)
-        ServerID = credentials.master.get_server(server['id'],fields="id,state")
+    response=requests.get(ENDPOINT)
+    assert response.status_code==200
+    if(response.status_code==200):
+        print("Serveris yra uzsakomas...")
+        startftime = time.time()
+        server = credentials.master.create_server(project_id="149121",
+                                                hostname = "",
+                                                image=setImage,
+                                                region=setRegion,
+                                                plan_id=(setPlan))
         
-        if(ServerID['state'] == 'active'):
-            print("Serveris uzsakytas sekmingai")
-            break
-        else:
-            print("serverio uzsakyti nepavyko")
-  """""
-def test_DeployServer(hostname,img,reg,id):
-    server = credentials.master.create_server(project_id="149121", 
-                              hostname=hostname,
-                              image=img, 
-                              region=reg,
-                              plan_id=id)
-    server2 = credentials.master.get_server(server['id'],fields="id,plan,power,state,created_at")
-    current_time = time.strftime("%H:%M:%S", t)
-    with open("logs.json", "a") as data:
-            server2["Test_Started_Time"] = current_time
-            server2['Test_Hostname'] = hostname
-            server2["Test_Plan id"] = id
-            server2["Test_Region"] = reg
-            server2["Test_Image"] = img
-            json.dump(server2, data,indent=2)
-    
-    while True:
-        time.sleep(30)
-        ServerID = credentials.master.get_server(server['id'],fields="id,state")
-        
-        if(ServerID['state'] == 'active'):
-            print("Serveris uzsakytas sekmingai")
-            break
-        else:
-            print("serverio uzsakyti nepavyko")
-    
-def DeleteServer(server_id):
-    server = credentials.master.terminate_server(server_id)
-    print("Serveris istrintas: %s" % server["id"])
+        start_time =datetime.now()
+        while True:
+            time.sleep(1)
+            ServerID = credentials.master.get_server(server['id'],fields="id,state")
+            if(ServerID['state'] == 'active'):
+                    
+                print("Serveris uzsakytas sekmingai")
+                end_time = datetime.now()
+                timex = end_time - start_time
+                with open("logs.json", "a") as data:
+                        server2 = credentials.master.get_server(server['id'],fields="plan,state,created_at")
+                        server2["Deployment_Start_Time"] = start_time
+                        server2["Test_Plan id"] = setPlan
+                        server2["Test_Region"] = setRegion
+                        server2["Test_Image"] = setImage
+                        server2["Deployment_end_time"] = end_time
+                        server2["Time taken for deployment"] = timex
+                        server2["Test status"] = "Succesful"
+                        json.dump(server2, data,indent=2,default=str)
+                        time.sleep(60)
+                        TerminateServer(server['id'])
+                        print("Serveris istrintas")
+                        UserInput = input("Baigiu darba")
+                break
+            else: 
+                    endtime = time.time()
+                    end_time = datetime.now()
+                    timex = end_time - start_time
+                    elapsed_time = endtime-startftime
+                    if(elapsed_time >= 900):  
+                        print("serverio uzsakyti nepavyko")
+                        with open("logs.json", "a") as data:
+                            server2["Deployment_Start_Time"] = start_time
+                            server2["Test_Plan id"] = setPlan
+                            server2["Test_Region"] = setRegion
+                            server2["Test_Image"] = setImage
+                            server2["Deployment_end_time"] = end_time
+                            server2["Time taken for deployment"] = timex
+                            server2["Test status"] = "Failed"
+                            json.dump(server2, data,indent=2,default=str)
+                            UserInput = input("Baigiu darba")
+                        break
+    else:
+        print("Portalas nepasiekiamas")
 
-print("/////////////////////////////Bezdione Bot //////////////////////////////////////////")
-print("pasirinkite viena varijanta is 2 pateiktu ir spauskite skaiciu")
+def DeployServer(img,reg,id):
+    response=requests.get(ENDPOINT)
+    assert response.status_code==200
+    if(response.status_code==200):
+        print("Serveris yra uzsakomas...")
+        startftime = time.time()
+        server = credentials.master.create_server(project_id="149121", 
+                                image=img, 
+                                region=reg,
+                                plan_id=id)
+       
+        start_time =datetime.now()
+        while True:
+            time.sleep(1)
+            ServerID = credentials.master.get_server(server['id'],fields="id,state")
+            if(ServerID['state'] == 'active'):
+                    
+                print("Serveris uzsakytas sekmingai")
+                end_time = datetime.now()
+                timex = end_time - start_time
+                with open("logs.json", "a") as data:
+                        server2 = credentials.master.get_server(server['id'],fields="id,plan,state,created_at")
+                        server2["Deployment_Start_Time"] = start_time
+                        server2["Test_Plan id"] = id
+                        server2["Test_Region"] = reg
+                        server2["Test_Image"] = img
+                        server2["Deployment_end_time"] = end_time
+                        server2["Time taken for deployment"] = timex
+                        server2["Test status"] = "Succesful"
+                        json.dump(server2, data,indent=2,default=str)
+                        time.sleep(60)
+                        TerminateServer(server['id'])
+                        print("Serveris istrintas")
+                        UserInput = input("Baigiu darba")
+                break
+            else: 
+                    endtime = time.time()
+                    end_time = datetime.now()
+                    timex = end_time - start_time
+                    elapsed_time = endtime-startftime
+                    if(elapsed_time >= 780):  
+                        print("serverio uzsakyti nepavyko")
+                        with open("logs.json", "a") as data:
+                            server2["Deployment_Start_Time"] = start_time
+                            server2["Test_Plan id"] = id
+                            server2["Test_Region"] = reg
+                            server2["Test_Image"] = img
+                            server2["Deployment_end_time"] = end_time
+                            server2["Time taken for deployment"] = timex
+                            server2["Test status"] = "Failed"
+                            json.dump(server2, data,indent=2,default=str)
+                            UserInput = input("Baigiu darba")
+                        break
+    else:
+        print("Portalas nepasiekiamas")
+
+print("Pasirinkite viena varijanta is 3 pateiktu ir spauskite skaiciu")
 print('1-Atsitiktinio serverio uzsakymas')
 print('2-Uzsakyti serveri su ivestais parametrais ')
+print( '3-baigti darba')
 while True:
-    User_input = int(input("Iveskite skaiciu (1 arba 2): "))
-
+    try:
+     User_input = int(input("Iveskite skaiciu 1 arba 2 arba 3: "))
+    except ValueError:
+        print('Galima vesti tik skaicius')
+        continue
     if User_input == 1:
         DeployRandomServer()
+        User_inputt = (input)
         break
     elif User_input == 2:
-        hostname = input("iveskite serverio pavadinima :")
-        img = input("Iveskite operacine sistema :")
-        reg = input("Iveskite regiona :")
-        plan_id = input('Iveskite plano id :')
-        
-        test_DeployServer(hostname,img,reg,plan_id)
-        break
+        while True:
+            img = input("Iveskite operacine sistema :")
+            if(img in Image_List):
+                while True:
+                    reg = input("Iveskite regiona :")
+                    if(reg in Region_list):
+                            while True:
+                                try:
+                                    plan_id = int(input("Iveskite plano id :"))
+                                except ValueError:
+                                    print('Galima vesti tik skaicius arba klaidingas id')
+                                    continue
+                                if(plan_id in Plan_list):
+                                    DeployServer(img,reg,plan_id)
+                                    sys.exit()     
+                                break
+                    else:
+                        print("Ivestis negali būti tuscia arba klaidingi parametrai")  
+            else:
+                print("Ivestis negali būti tuscia arba klaidingi parametrai")
+                
+    elif User_input == 3: 
+        break             
     else:
         print("Blogai ivestas skaicius")
 
-
-
-
-"""""
-#-----------------------TESTS------------------------------------------------------------------------------
-def test_acess_to_regions():
-    url = "https://api.cherryservers.com/v1/regions"
-    response = requests.get(url,headers=credentials.headers)
-   # assert response.status_code ==200
-    print(response.status_code)
-
-def test_accesibility_to_images(slug):
-    url = "https://api.cherryservers.com/v1/servers/{slug}/actions"
-    response = requests.get(url,headers=credentials.headers)
-    assert response.status_code ==200
-
-def test_accesibility_to_images():
-    url = "https://api.cherryservers.com/v1/teams"
-    response = requests.get(url,headers=credentials.headers)
-    assert response.status_code ==200
-    
-
-def test_accesibility_to_plans():
-    url = "https://api.cherryservers.com/v1/plans"
-    response = requests.get(url,headers=credentials.headers)
-    assert response.status_code ==200
-    
-def test_acess_to_portal():
-    response=requests.get(ENDPOINT)
-    assert response.status_code==200
-
-def test_GetTeams():
-    teams = credentials.master.get_teams()
-    for team in teams:
-        t = json.dumps(team)
-    parse_t = json.loads(t)
-    print("Team ID: %s -> Team Name: %s" % (parse_t['id'], parse_t['name']))
-
-def test_GetSpecificServerInfo():
-    server = credentials.master.get_server(485857, fields="power,state,termination_date")
-    print(server)
-#def test_DeleteServer(server_id):
- #   server = master.terminate_server(server_id)
-  #  print("Delete server: %s" % server)
-    """""
-#-----------------------------------------------------------------------------------------------------------
